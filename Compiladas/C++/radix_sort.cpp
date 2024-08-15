@@ -1,61 +1,50 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <fstream>
+#include <string>
+#include <ctime>
+#include <algorithm>
 #include <chrono>
 
 struct Metricas {
-    int comparacoes = 0;
-    int trocas = 0;
-    double tempoExecucao = 0.0;
-    int memoriaUsada = 0;
+    int comparacoes = 0; // Comparacoes não são feitas diretamente no Radix Sort
+    int trocas = 0;      // Trocas não são feitas diretamente no Radix Sort
+    double tempoExecucao = 0.0; // Em segundos
+    int memoriaUsada = 0;    // Em bytes
 };
 
-void merge(std::vector<int>& arr, int l, int m, int r, Metricas& metricas) {
-    int n1 = m - l + 1;
-    int n2 = r - m;
+void countingSortForRadix(std::vector<int>& arr, int exp, Metricas& metricas) {
+    int n = arr.size();
+    std::vector<int> output(n);
+    int count[10] = {0};
 
-    std::vector<int> L(n1), R(n2);
-    metricas.memoriaUsada += (n1 + n2) * sizeof(int);
+    metricas.memoriaUsada += (sizeof(count) + n * sizeof(int));
 
-    for (int i = 0; i < n1; ++i)
-        L[i] = arr[l + i];
-    for (int j = 0; j < n2; ++j)
-        R[j] = arr[m + 1 + j];
-
-    int i = 0, j = 0, k = l;
-    while (i < n1 && j < n2) {
-        metricas.comparacoes++;
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        } else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
+    for (int i = 0; i < n; i++) {
+        int index = (arr[i] / exp) % 10;
+        count[index]++;
     }
 
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
+    for (int i = 1; i < 10; i++) {
+        count[i] += count[i - 1];
     }
 
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
+    for (int i = n - 1; i >= 0; i--) {
+        int index = (arr[i] / exp) % 10;
+        output[count[index] - 1] = arr[i];
+        count[index]--;
+    }
+
+    for (int i = 0; i < n; i++) {
+        metricas.trocas += 1;
+        arr[i] = output[i];
     }
 }
 
-void mergeSort(std::vector<int>& arr, int l, int r, Metricas& metricas) {
-    if (l < r) {
-        int m = l + (r - l) / 2;
-
-        mergeSort(arr, l, m, metricas);
-        mergeSort(arr, m + 1, r, metricas);
-
-        merge(arr, l, m, r, metricas);
+void radixSort(std::vector<int>& arr, Metricas& metricas) {
+    int max_val = *std::max_element(arr.begin(), arr.end());
+    for (int exp = 1; max_val / exp > 0; exp *= 10) {
+        countingSortForRadix(arr, exp, metricas);
     }
 }
 
@@ -77,10 +66,9 @@ std::vector<int> loadArray(int size, const std::string& caseType) {
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        std::cerr << "Uso: ./merge_sort <tamanho do vetor> <caso>\n";
+        std::cerr << "Uso: ./radix_sort <tamanho do vetor> <caso>\n";
         return 1;
     }
-
     int tamanho = std::stoi(argv[1]);
     std::string caso = argv[2];
 
@@ -88,9 +76,8 @@ int main(int argc, char* argv[]) {
     std::vector<int> arr = loadArray(tamanho, caso);
 
     auto start = std::chrono::high_resolution_clock::now();
-    mergeSort(arr, 0, tamanho - 1, metricas);
+    radixSort(arr, metricas);
     auto end = std::chrono::high_resolution_clock::now();
-
     metricas.tempoExecucao = std::chrono::duration<double>(end - start).count();
 
     std::cout << "Comparacoes: " << metricas.comparacoes << std::endl;

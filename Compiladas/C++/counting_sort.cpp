@@ -1,6 +1,7 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <algorithm>
+#include <fstream>
 #include <chrono>
 
 struct Metricas {
@@ -10,52 +11,30 @@ struct Metricas {
     int memoriaUsada = 0;
 };
 
-void merge(std::vector<int>& arr, int l, int m, int r, Metricas& metricas) {
-    int n1 = m - l + 1;
-    int n2 = r - m;
+void countingSort(std::vector<int>& arr, Metricas& metricas) {
+    int max = *std::max_element(arr.begin(), arr.end());
 
-    std::vector<int> L(n1), R(n2);
-    metricas.memoriaUsada += (n1 + n2) * sizeof(int);
+    std::vector<int> count(max + 1, 0);
+    std::vector<int> output(arr.size());
 
-    for (int i = 0; i < n1; ++i)
-        L[i] = arr[l + i];
-    for (int j = 0; j < n2; ++j)
-        R[j] = arr[m + 1 + j];
+    metricas.memoriaUsada = (max + 1) * sizeof(int) + arr.size() * sizeof(int);
 
-    int i = 0, j = 0, k = l;
-    while (i < n1 && j < n2) {
-        metricas.comparacoes++;
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        } else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
+    for (int i = 0; i < arr.size(); i++) {
+        count[arr[i]]++;
     }
 
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
+    for (int i = 1; i <= max; i++) {
+        count[i] += count[i - 1];
     }
 
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
+    for (int i = arr.size() - 1; i >= 0; i--) {
+        output[count[arr[i]] - 1] = arr[i];
+        count[arr[i]]--;
+        metricas.trocas++;
     }
-}
 
-void mergeSort(std::vector<int>& arr, int l, int r, Metricas& metricas) {
-    if (l < r) {
-        int m = l + (r - l) / 2;
-
-        mergeSort(arr, l, m, metricas);
-        mergeSort(arr, m + 1, r, metricas);
-
-        merge(arr, l, m, r, metricas);
+    for (int i = 0; i < arr.size(); i++) {
+        arr[i] = output[i];
     }
 }
 
@@ -88,7 +67,7 @@ int main(int argc, char* argv[]) {
     std::vector<int> arr = loadArray(tamanho, caso);
 
     auto start = std::chrono::high_resolution_clock::now();
-    mergeSort(arr, 0, tamanho - 1, metricas);
+    countingSort(arr, metricas);
     auto end = std::chrono::high_resolution_clock::now();
 
     metricas.tempoExecucao = std::chrono::duration<double>(end - start).count();

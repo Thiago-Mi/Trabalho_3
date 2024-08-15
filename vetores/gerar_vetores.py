@@ -16,11 +16,11 @@ for size in sizes:
     vectors[size]["decrescente"] = list(range(size, 0, -1))
 
 # Salva os vetores em um arquivo txt
-with open('vetores/vetores_input.txt', 'w') as f:
+with open('vetores/vetores/vetores_input.txt', 'w') as f:
     for size in sizes:
         for case in cases:
             f.write(f"{size} {case}:\n")
             f.write(" ".join(map(str, vectors[size][case])) + "\n")
 
-'vetores/vetores_input.txt'  # Retorna o caminho do arquivo gerado
+'vetores/vetores/vetores_input.txt'  # Retorna o caminho do arquivo gerado
 

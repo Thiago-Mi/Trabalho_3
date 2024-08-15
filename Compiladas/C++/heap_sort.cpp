@@ -1,7 +1,7 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <chrono>
+#include <fstream>
 
 struct Metricas {
     int comparacoes = 0;
@@ -10,53 +10,43 @@ struct Metricas {
     int memoriaUsada = 0;
 };
 
-void merge(std::vector<int>& arr, int l, int m, int r, Metricas& metricas) {
-    int n1 = m - l + 1;
-    int n2 = r - m;
+void swap(int& a, int& b, Metricas& metricas) {
+    int t = a;
+    a = b;
+    b = t;
+    metricas.trocas++;
+}
 
-    std::vector<int> L(n1), R(n2);
-    metricas.memoriaUsada += (n1 + n2) * sizeof(int);
+void heapify(std::vector<int>& arr, int n, int i, Metricas& metricas) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    metricas.memoriaUsada += largest*sizeof(int) + left * sizeof(int) + right*sizeof(int);
+    metricas.comparacoes++;
+    if (left < n && arr[left] > arr[largest])
+        largest = left;
 
-    for (int i = 0; i < n1; ++i)
-        L[i] = arr[l + i];
-    for (int j = 0; j < n2; ++j)
-        R[j] = arr[m + 1 + j];
+    metricas.comparacoes++;
+    if (right < n && arr[right] > arr[largest])
+        largest = right;
 
-    int i = 0, j = 0, k = l;
-    while (i < n1 && j < n2) {
-        metricas.comparacoes++;
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        } else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
+    if (largest != i) {
+        swap(arr[i], arr[largest], metricas);
+        heapify(arr, n, largest, metricas);
     }
 }
 
-void mergeSort(std::vector<int>& arr, int l, int r, Metricas& metricas) {
-    if (l < r) {
-        int m = l + (r - l) / 2;
+void heapSort(std::vector<int>& arr, Metricas& metricas) {
+    int n = arr.size();
+    metricas.memoriaUsada += n*sizeof(int);
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i, metricas);
 
-        mergeSort(arr, l, m, metricas);
-        mergeSort(arr, m + 1, r, metricas);
-
-        merge(arr, l, m, r, metricas);
+    for (int i = n - 1; i > 0; i--) {
+        swap(arr[0], arr[i], metricas);
+        heapify(arr, i, 0, metricas);
     }
+
 }
 
 std::vector<int> loadArray(int size, const std::string& caseType) {
@@ -88,7 +78,7 @@ int main(int argc, char* argv[]) {
     std::vector<int> arr = loadArray(tamanho, caso);
 
     auto start = std::chrono::high_resolution_clock::now();
-    mergeSort(arr, 0, tamanho - 1, metricas);
+    heapSort(arr, metricas);
     auto end = std::chrono::high_resolution_clock::now();
 
     metricas.tempoExecucao = std::chrono::duration<double>(end - start).count();
@@ -97,6 +87,6 @@ int main(int argc, char* argv[]) {
     std::cout << "Trocas: " << metricas.trocas << std::endl;
     std::cout << "Tempo de execucao: " << metricas.tempoExecucao << std::endl;
     std::cout << "Memoria usada: " << metricas.memoriaUsada << std::endl;
-
+    
     return 0;
 }

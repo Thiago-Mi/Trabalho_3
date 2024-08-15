@@ -13,7 +13,7 @@ class Metricas:
 
 # Função para mesclar duas metades do array
 def merge(arr, l, m, r, metricas):
-    n1 = m - l + 1
+    n1 = m - l
     n2 = r - m
 
     # Arrays temporários
@@ -33,21 +33,25 @@ def merge(arr, l, m, r, metricas):
     while i < n1 and j < n2:
         metricas.comparacoes += 1
         if L[i] <= R[j]:
+            metricas.trocas +=1
             arr[k] = L[i]
             i += 1
         else:
+            metricas.trocas +=1
             arr[k] = R[j]
             j += 1
         k += 1
 
     # Copiar os elementos restantes de L[], se houver
     while i < n1:
+        metricas.trocas +=1
         arr[k] = L[i]
         i += 1
         k += 1
 
     # Copiar os elementos restantes de R[], se houver
     while j < n2:
+        metricas.trocas +=1
         arr[k] = R[j]
         j += 1
         k += 1
@@ -73,9 +77,10 @@ def printArray(arr):
 
 # Função para carregar o vetor a partir do arquivo
 def carregarVetor(tamanho, caso):
-    with open('vetores_input.txt', 'r') as f:
+    with open('vetores/vetores_input.txt', 'r') as f:
         lines = f.readlines()
         key = f"{tamanho} {caso}:"
+
         for i in range(len(lines)):
             if lines[i].strip() == key:
                 vetor = list(map(int, lines[i + 1].strip().split()))
@@ -83,37 +88,27 @@ def carregarVetor(tamanho, caso):
     return []
 
 # Função principal
-def main():
+def main(tamanho, caso):
     locale.setlocale(locale.LC_ALL, "Portuguese")
-    if len(sys.argv) != 3:
-        print("Uso: python insertion_sort.py <tamanho do vetor> <caso>")
-        return
 
-    tamanho = int(sys.argv[1])
-    caso = sys.argv[2]
+    # tamanho = int(sys.argv[1])
+    # caso = sys.argv[2] 
+    # print("Uso: python merge_sort.py {tamanho} {caso}")
+    
 
     metricas = Metricas()
     arr = carregarVetor(tamanho, caso)
-
-
-    print("Array inicial: ")
-    # printArray(arr)
-
-    # Capturar o tempo de início
     inicio = time.time()
-    mergeSort(arr,0,tamanho -1,metricas)
-    # Capturar o tempo de término
+    mergeSort(arr, 0, tamanho -1, metricas)
     fim = time.time()
 
-    # Calcular o tempo de execução em segundos
     metricas.tempoExecucao = fim - inicio
+    # Retornar métricas como dicionário
+    return {
+        "Comparacoes": metricas.comparacoes,
+        "Trocas": metricas.trocas,
+        "Tempo de execucao": metricas.tempoExecucao,
+        "Memoria usada": metricas.memoriaUsada
+    }
 
 
-    print("\nMétricas: ")
-    print(f"Comparações: {metricas.comparacoes}")
-    print(f"Trocas: {metricas.trocas}")
-    print(f"Tempo de execução: {metricas.tempoExecucao:.6f} segundos")
-    print(f"Memória usada: {metricas.memoriaUsada} bytes")
-
-if __name__ == "__main__":
-    main()

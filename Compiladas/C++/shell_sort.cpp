@@ -1,6 +1,7 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <algorithm>
+#include <fstream>
 #include <chrono>
 
 struct Metricas {
@@ -10,53 +11,23 @@ struct Metricas {
     int memoriaUsada = 0;
 };
 
-void merge(std::vector<int>& arr, int l, int m, int r, Metricas& metricas) {
-    int n1 = m - l + 1;
-    int n2 = r - m;
-
-    std::vector<int> L(n1), R(n2);
-    metricas.memoriaUsada += (n1 + n2) * sizeof(int);
-
-    for (int i = 0; i < n1; ++i)
-        L[i] = arr[l + i];
-    for (int j = 0; j < n2; ++j)
-        R[j] = arr[m + 1 + j];
-
-    int i = 0, j = 0, k = l;
-    while (i < n1 && j < n2) {
-        metricas.comparacoes++;
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        } else {
-            arr[k] = R[j];
-            j++;
+void shellSort(std::vector<int>& arr, Metricas& metricas) {
+    int n = arr.size();
+    metricas.memoriaUsada += n * sizeof(int);
+    for (int gap = n/2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j;
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                metricas.comparacoes++;
+                arr[j] = arr[j - gap];
+                metricas.trocas++;
+            }
+            arr[j] = temp;
+            metricas.trocas++;
         }
-        k++;
     }
 
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
-}
-
-void mergeSort(std::vector<int>& arr, int l, int r, Metricas& metricas) {
-    if (l < r) {
-        int m = l + (r - l) / 2;
-
-        mergeSort(arr, l, m, metricas);
-        mergeSort(arr, m + 1, r, metricas);
-
-        merge(arr, l, m, r, metricas);
-    }
 }
 
 std::vector<int> loadArray(int size, const std::string& caseType) {
@@ -88,7 +59,7 @@ int main(int argc, char* argv[]) {
     std::vector<int> arr = loadArray(tamanho, caso);
 
     auto start = std::chrono::high_resolution_clock::now();
-    mergeSort(arr, 0, tamanho - 1, metricas);
+    shellSort(arr, metricas);
     auto end = std::chrono::high_resolution_clock::now();
 
     metricas.tempoExecucao = std::chrono::duration<double>(end - start).count();
@@ -97,6 +68,6 @@ int main(int argc, char* argv[]) {
     std::cout << "Trocas: " << metricas.trocas << std::endl;
     std::cout << "Tempo de execucao: " << metricas.tempoExecucao << std::endl;
     std::cout << "Memoria usada: " << metricas.memoriaUsada << std::endl;
-
+    
     return 0;
 }

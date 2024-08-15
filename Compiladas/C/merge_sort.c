@@ -84,73 +84,68 @@ void printArray(int A[], int size) {
     printf("\n");
 }
 
-// Funcao para gerar um vetor de acordo com a opcao fornecida
-int* gerarVetor(int N, int opcao, int repeticao) {
-    setlocale(LC_ALL, "Portuguese");
-    int *vetor = (int *)malloc(N * sizeof(int));
-    if (!vetor) {
-        printf("Erro ao alocar memoria\n");
+
+int* carregarVetor(int tamanho, const char* caso, int* vetorSize) {
+    FILE* file = fopen("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt", "r");
+    if (!file) {
+        printf("Erro ao abrir o arquivo!\n");
         exit(1);
     }
 
-    if (opcao == 0) { // Vetor aleatorio
-        srand(time(NULL));
-        if (repeticao == 1) {
-            for (int i = 0; i < N; i++) {
-                vetor[i] = rand() % N; // Valores aleatorios entre 0 e 99
+    char line[256];
+    char key[50];
+    snprintf(key, sizeof(key), "%d %s:", tamanho, caso);
+
+    int* vetor = NULL;
+    while (fgets(line, sizeof(line), file)) {
+        if (strcmp(line, key) == 0) {
+            vetor = (int*)malloc(tamanho * sizeof(int));
+            *vetorSize = 0;
+
+            fgets(line, sizeof(line), file);
+            char* token = strtok(line, " ");
+            while (token != NULL) {
+                vetor[*vetorSize] = atoi(token);
+                (*vetorSize)++;
+                token = strtok(NULL, " ");
             }
-        } else {
-            int temp[N];
-            for (int i = 0; i < N; i++) {
-                temp[i] = i;
-            }
-            for (int i = 0; i < N; i++) {
-                int j = rand() % (N - i);
-                vetor[i] = temp[j];
-                temp[j] = temp[N - i - 1];
-            }
+            break;
         }
-    } else if (opcao == 1) { // Vetor crescente
-        for (int i = 0; i < N; i++) {
-            vetor[i] = i;
-        }
-    } else if (opcao == 2) { // Vetor decrescente
-        for (int i = 0; i < N; i++) {
-            vetor[i] = N - i;
-        }
-    } else {
-        printf("Opcao invalida\n");
-        free(vetor);
-        exit(1);
     }
 
+    fclose(file);
     return vetor;
 }
 
 // Funcao principal
-int main() {
+int main(int argc, char *argv[]) {
+    int tamanho;
+    int *arr;
+    int *vetorsize;
+    if (argc < 3) {
+        printf("Uso: %s <tamanho do vetor> <caminho do arquivo>\n", argv[0]);
+        return 1;
+    }
 
-    setlocale(LC_ALL, "Portuguese");
+    tamanho = atoi(argv[1]);
+    char *caso = argv[2];
 
-    int N = 10000; // Tamanho do vetor
-    int opcao = 0; // 0 para aleatorio, 1 para crescente, 2 para decrescente
-    int repeticao = 1; // 0 para sem repeticao, 1 para com repeticao
+    arr = (int *)malloc(tamanho * sizeof(int));
+    if (arr == NULL) {
+        printf("Erro ao alocar memória.\n");
+        return 1;
+    }
+    arr = carregarVetor(tamanho,caso,&vetorsize);
+
     Metricas metricas = {0, 0, 0.0, 0};
 
-    // Gerar vetor de acordo com a opcao fornecida
-    int *arr = gerarVetor(N, opcao, repeticao);
-
-    // Adicionar memoria usada pelo vetor gerado
-    metricas.memoriaUsada += N * sizeof(int);
 
     // printf("Array inicial: \n");
     // printArray(arr, N);
 
     // Capturar o tempo de início
     clock_t inicio = clock();
-
-    mergeSort(arr, 0, N - 1, &metricas);
-
+    mergeSort(arr, 0, tamanho - 1, &metricas);
     // Capturar o tempo de termino
     clock_t fim = clock();
 
@@ -159,12 +154,10 @@ int main() {
 
     // printf("\nArray ordenado: \n");
     // printArray(arr, N);
-
-    printf("\nMetricas: \n");
     printf("Comparacoes: %d\n", metricas.comparacoes);
     printf("Trocas: %d\n", metricas.trocas);
-    printf("Tempo de execucao: %f segundos\n", metricas.tempoExecucao);
-    printf("Memoria usada: %zu bytes\n", (unsigned long)metricas.memoriaUsada);
+    printf("Tempo de execucao: %f\n", metricas.tempoExecucao);
+    printf("Memoria usada: %zu\n", (unsigned long)metricas.memoriaUsada);
 
 
     // Liberar a memoria alocada para o vetor

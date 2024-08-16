@@ -1,20 +1,14 @@
-import subprocess
 import matplotlib.pyplot as plt
-import importlib.util
 import seaborn as sns
+import subprocess
 import os.path
 import execjs
+import numpy as np
 
 # Função para rodar um algoritmo de ordenação Python
-def run_sort_algorithm_py(module_name, size, option):
-    result = subprocess.run(["python3", module_name, str(size), str(option)], capture_output=True, text=True)
+def run_sort_algorithm_js(module_name, size, option):
+    result = subprocess.run(["node", module_name, str(size), str(option)], capture_output=True, text=True)
     metrics = result.stdout
-    return metrics
-
-def run_merge_sort_cpp(executable, size, option ):
-    result = subprocess.run([executable, str(size), str(option)], capture_output=True, text=True)
-    output = result.stdout
-    metrics = parse_metrics(output)
     return metrics
 
 # Função para rodar o algoritmo Merge Sort
@@ -63,48 +57,61 @@ def parse_metrics(output):
     metrics = {}
     for line in lines:
         if "Comparacoes" in line:
-            metrics["Comparacoes"] = int(line.split(":")[1].strip())
+            metrics["Comparacoes"] = int((line.split(":")[1].strip()).replace(",",""))
         elif "Trocas" in line:
-            metrics["Trocas"] = int(line.split(":")[1].strip())
+            metrics["Trocas"] = int(line.split(":")[1].strip().replace(",",""))
         elif "Tempo de execucao" in line:
-            metrics["Tempo de execucao"] = float((line.split(":")[1].strip().split()[0]).replace(",",".")) 
+            metrics["Tempo de execucao"] = float((line.split(":")[1].strip().split()[0]).replace(",","")) 
         elif "Memoria usada" in line:
             metrics["Memoria usada"] = int(line.split(":")[1].strip().split()[0])
     return metrics
 
 
 # Função para plotar as métricas
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 def plot_metrics(metrics_dict):
-    metrics = ["Comparacoes", "Trocas", "Tempo de execucao", "Memoria usada"]
-    vector_types = ['aleatorios', 'crescente', 'decrescente']  # Replace with actual vector type names
+    metrics = ["Comparacoes", "Trocas", "Tempo de execucao"]
+    vector_types = ['aleatorios', 'crescente', 'decrescente']  # Tipos de vetores
+    colors = sns.color_palette("Set2", len(vector_types))  # Paleta de cores
     
-    plt.figure(figsize=(20, 45))
+    plt.figure(figsize=(20, 10))
     
-    plot_number = 1
-    
-    for option in vector_types:
-        for metric_name in metrics:
-            plt.subplot(len(vector_types), len(metrics), plot_number)
+    for i, metric_name in enumerate(metrics):
+        plt.subplot(1, len(metrics), i + 1)
+        
+        algorithms = []
+        aleatorios_values = []
+        crescente_values = []
+        decrescente_values = []
+        
+        for algorithm_name, options_metrics in metrics_dict.items():
+            algorithms.append(algorithm_name)
             
-            for algorithm_name, options_metrics in metrics_dict.items():
-                if option in options_metrics:
-                    metrics_list = options_metrics[option]
-                    metric_values = [metrics[metric_name] for metrics in metrics_list]
-                    sns.lineplot(x=range(len(metrics_list)), y=metric_values, label=f"{algorithm_name} - {option}")
+            # Somar os valores de cada tipo de vetor para a métrica atual
+            aleatorio_sum = sum([metrics[metric_name] for metrics in options_metrics['aleatorios']])
+            crescente_sum = sum([metrics[metric_name] for metrics in options_metrics['crescente']])
+            decrescente_sum = sum([metrics[metric_name] for metrics in options_metrics['decrescente']])
             
-            plt.xlabel('Execução')
-            plt.ylabel(metric_name)
-            plt.title(f'{metric_name} por Execução ({option})')
-            plt.legend()
-            plt.grid(True)
-            
-            plot_number += 1
+            aleatorios_values.append(aleatorio_sum)
+            crescente_values.append(crescente_sum)
+            decrescente_values.append(decrescente_sum)
+        
+        # Converter os valores para numpy arrays para facilitar a manipulação
+        aleatorios_values = np.array(aleatorios_values)
+        crescente_values = np.array(crescente_values)
+        decrescente_values = np.array(decrescente_values)
+        
+        # Plotar barras empilhadas
+        p1 = plt.bar(algorithms, aleatorios_values, color=colors[0], label=vector_types[0])
+        p2 = plt.bar(algorithms, crescente_values, bottom=aleatorios_values, color=colors[1], label=vector_types[1])
+        p3 = plt.bar(algorithms, decrescente_values, bottom=aleatorios_values + crescente_values, color=colors[2], label=vector_types[2])
+        
+        plt.xlabel('Método de Ordenação')
+        plt.ylabel(metric_name)
+        plt.title(f'{metric_name} por Algoritmo')
+        plt.xticks(rotation=45, ha='right')
+        plt.legend(title="Tipo de Vetor")
+        plt.grid(True)
     
     plt.tight_layout()
     plt.show()
@@ -184,15 +191,17 @@ def run_js_comparison(algorithms_js, sizes, options):
         for option in options:
             metrics_list = []
             for size in sizes:
-                print(f"Running {algorithm_name}, with size: {size}")
-                dir = os.path.dirname(executable)
-                with open(os.path.join(dir, "merge_sort.js")) as f:
-                    jscode = f.read()
-                result = myjs.compile(jscode)
-                output = result.call("main",size,option)
-                metrics = output
+                # print(f"Running {algorithm_name}, with size: {size}")
+                # dir = os.path.dirname(executable)
+                # with open(os.path.join(dir, "merge_sort.js")) as f:
+                #     jscode = f.read()
+                # result = myjs.compile(jscode)
+                # output = result.call("main",size,option)
+                metrics = run_sort_algorithm_js(executable,size,option)
+                metrics = parse_metrics(metrics)
                 metrics_list.append(metrics)
             metrics_dict[algorithm_name][option] = metrics_list
+    
     plot_metrics(metrics_dict)
        
 def run_c_comparison(algorithms_c, sizes, options):
@@ -202,12 +211,13 @@ def run_c_comparison(algorithms_c, sizes, options):
         for option in options:
             metrics_list = []
             for size in sizes:
-                print(f"Running {algorithm_name}, with size: {size}")
+                # print(f"Running {algorithm_name}, with size: {size}")
                 result = subprocess.run([executable, str(size), str(option)], capture_output=True, text=True)
                 output = result.stdout
                 metrics = parse_metrics(output)
                 metrics_list.append(metrics)
             metrics_dict[algorithm_name][option] = metrics_list
+    print(metrics_dict)
     plot_metrics(metrics_dict)
         
 
@@ -257,12 +267,12 @@ if __name__ == "__main__":
         "Bubble Sort": "Interpretadas/Javascript/bubble_sort.js",
     }
 
-    sizes = [1000, 10000, 100000, 200000, 400000, 800000, 1000000]  # Diferentes tamanhos de entrada para teste
+    sizes = [100, 1000, 10000, 100000]  # Diferentes tamanhos de entrada para teste
     # sizes = [1000,10000,100000,200000]
     # sizes = [1000,10000]
     options = ["aleatorios","crescente", "decrescente"]
 
-    run_c_comparison(algorithms_c,sizes,options)
-    run_js_comparison(algorithms_js,sizes,options)
     run_cpp_comparison(algorithms_cpp,sizes,options)
     run_python_comparison(algorithms_py)
+    run_c_comparison(algorithms_c,sizes,options)
+    run_js_comparison(algorithms_js,sizes,options)

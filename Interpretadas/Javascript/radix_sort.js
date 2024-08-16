@@ -41,11 +41,12 @@ function radixSort(arr, metricas) {
     const max_val = Math.max(...arr);
     for (let exp = 1; Math.floor(max_val / exp) > 0; exp *= 10) {
         countingSortForRadix(arr, exp, metricas);
+        metricas.Comparacoes++;
     }
 }
 
 function carregarVetor(tamanho, caso) {
-    const data = fs.readFileSync('D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt', 'utf8');
+    const data = fs.readFileSync('D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt', 'utf8');
     const lines = data.split('\n');
     const key = `${tamanho} ${caso}:`;
     for (let i = 0; i < lines.length; i++) {
@@ -66,8 +67,8 @@ function main(tamanho, caso) {
     metricas.tempoExecucao = (fim - inicio) / 1000;
 
     console.log({
-        Comparacoes: metricas.comparacoes,
-        Trocas: metricas.trocas,
+        "Comparacoes": metricas.comparacoes,
+        "Trocas": metricas.trocas,
         "Tempo de execucao": metricas.tempoExecucao,
         "Memoria usada": metricas.memoriaUsada
     });

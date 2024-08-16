@@ -26,8 +26,9 @@ function medianaDeTres(arr, low, high) {
 
 function partition(arr, low, high, metrics) {
     const pivot = medianaDeTres(arr, low, high);
+    metrics.comparacoes += 3;
     let i = (low - 1);
-
+    metrics.memoriaUsada += (pivot+i)*4;
     for (let j = low; j < high; j++) {
         metrics.comparacoes++;
         if (arr[j] < pivot) {
@@ -51,7 +52,7 @@ function quickSort(arr, low, high, metrics) {
 }
 
 function carregarVetor(tamanho, caso) {
-    const data = fs.readFileSync('D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt', 'utf8');
+    const data = fs.readFileSync('D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt', 'utf8');
     const lines = data.split('\n');
     const key = `${tamanho} ${caso}:`;
     for (let i = 0; i < lines.length; i++) {
@@ -71,7 +72,6 @@ function main(tamanho, caso) {
     const fim = performance.now();
     
     metricas.tempoExecucao = (fim - inicio) / 1000; // Em segundos
-    console.log(tamanho, caso);
     return {
         "Comparacoes": metricas.comparacoes,
         "Trocas": metricas.trocas,
@@ -79,3 +79,10 @@ function main(tamanho, caso) {
         "Memoria usada": metricas.memoriaUsada
     };
 }
+
+const args = process.argv.slice(2);
+const tamanho = parseInt(args[0]);
+const caso = args[1];
+
+const resultado = main(tamanho, caso);
+console.log(resultado);

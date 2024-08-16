@@ -18,8 +18,8 @@ void bubbleSort(std::vector<int>& arr, Metricas& metricas) {
     metricas.memoriaUsada += n * sizeof(int);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n - i - 1; j++) {
-            metricas.comparacoes++;
             if (arr[j] > arr[j + 1]) {
+                metricas.comparacoes++;
                 std::swap(arr[j], arr[j + 1]);
                 metricas.trocas++;
             }
@@ -28,7 +28,7 @@ void bubbleSort(std::vector<int>& arr, Metricas& metricas) {
 }
 
 std::vector<int> loadArray(int size, const std::string& caseType) {
-    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt");
+    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt");
     std::vector<int> arr(size);
     std::string key = std::to_string(size) + " " + caseType + ":";
     std::string line;

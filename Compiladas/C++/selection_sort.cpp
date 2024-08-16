@@ -20,8 +20,8 @@ void selectionSort(std::vector<int>& arr, Metricas& metricas) {
         int min_idx = i;
         metricas.memoriaUsada += min_idx * sizeof(int);
         for (int j = i+1; j < n; j++) {
-            metricas.comparacoes++;
             if (arr[j] < arr[min_idx]){
+                metricas.comparacoes++;
                 min_idx = j;
                 metricas.trocas++;
             }
@@ -33,7 +33,7 @@ void selectionSort(std::vector<int>& arr, Metricas& metricas) {
 }
 
 std::vector<int> loadArray(int size, const std::string& caseType) {
-    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt");
+    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt");
     std::vector<int> arr(size);
     std::string key = std::to_string(size) + " " + caseType + ":";
     std::string line;

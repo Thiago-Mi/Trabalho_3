@@ -6,7 +6,7 @@
 // Estrutura para armazenar as metricas
 typedef struct {
     int comparacoes;
-    int trocas;
+    long trocas;
     double tempoExecucao;
     int memoriaUsada;
 } Metricas;
@@ -86,7 +86,7 @@ void printArray(int A[], int size) {
 
 
 void loadArray(int arr[], int size, const char* caseType) {
-    FILE* file = fopen("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt", "r");
+    FILE* file = fopen("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt", "r");
     if (file == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
     metricas.tempoExecucao = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
 
     printf("Comparacoes: %d\n", metricas.comparacoes);
-    printf("Trocas: %d\n", metricas.trocas);
+    printf("Trocas: %ld\n", metricas.trocas);
     printf("Tempo de execucao: %lf\n", metricas.tempoExecucao);
     printf("Memoria usada: %d\n", metricas.memoriaUsada);
 

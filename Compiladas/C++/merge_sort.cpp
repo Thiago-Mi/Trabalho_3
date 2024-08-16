@@ -60,7 +60,7 @@ void mergeSort(std::vector<int>& arr, int l, int r, Metricas& metricas) {
 }
 
 std::vector<int> loadArray(int size, const std::string& caseType) {
-    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt");
+    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt");
     std::vector<int> arr(size);
     std::string key = std::to_string(size) + " " + caseType + ":";
     std::string line;

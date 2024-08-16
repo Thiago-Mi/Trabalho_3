@@ -46,7 +46,7 @@ def heapSort(arr, metricas):
 
 
 def carregarVetor(tamanho, caso):
-    with open('vetores/vetores_input.txt', 'r') as f:
+    with open('vetores/vetores_input_2.txt', 'r') as f:
         lines = f.readlines()
         key = f"{tamanho} {caso}:"
         for i in range(len(lines)):

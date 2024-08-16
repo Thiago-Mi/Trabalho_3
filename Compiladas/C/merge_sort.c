@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <locale.h>
+#include <string.h>
 
 // Estrutura para armazenar as metricas
 typedef struct {
     int comparacoes;
     int trocas;
-    double tempoExecucao;  // Armazena o tempo de execucao em segundos
-    size_t memoriaUsada;   // Armazena a quantidade de memoria usada em bytes
+    double tempoExecucao;
+    int memoriaUsada;
 } Metricas;
 
 // Funcao para mesclar duas metades do array
@@ -85,83 +85,54 @@ void printArray(int A[], int size) {
 }
 
 
-int* carregarVetor(int tamanho, const char* caso, int* vetorSize) {
+void loadArray(int arr[], int size, const char* caseType) {
     FILE* file = fopen("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input.txt", "r");
-    if (!file) {
-        printf("Erro ao abrir o arquivo!\n");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
         exit(1);
     }
-
+    
+    char key[20];
+    snprintf(key, sizeof(key), "%d %s:", size, caseType);
+    
     char line[256];
-    char key[50];
-    snprintf(key, sizeof(key), "%d %s:", tamanho, caso);
-
-    int* vetor = NULL;
     while (fgets(line, sizeof(line), file)) {
-        if (strcmp(line, key) == 0) {
-            vetor = (int*)malloc(tamanho * sizeof(int));
-            *vetorSize = 0;
-
-            fgets(line, sizeof(line), file);
-            char* token = strtok(line, " ");
-            while (token != NULL) {
-                vetor[*vetorSize] = atoi(token);
-                (*vetorSize)++;
-                token = strtok(NULL, " ");
-            }
+        if (strncmp(line, key, strlen(key)) == 0) {
+            for (int i = 0; i < size; ++i)
+                fscanf(file, "%d", &arr[i]);
             break;
         }
     }
-
     fclose(file);
-    return vetor;
 }
 
-// Funcao principal
-int main(int argc, char *argv[]) {
-    int tamanho;
-    int *arr;
-    int *vetorsize;
-    if (argc < 3) {
-        printf("Uso: %s <tamanho do vetor> <caminho do arquivo>\n", argv[0]);
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        printf("Uso: ./quick_sort <tamanho do vetor> <caso>\n");
         return 1;
     }
+    int tamanho = atoi(argv[1]);
+    char* caso = argv[2];
 
-    tamanho = atoi(argv[1]);
-    char *caso = argv[2];
-
-    arr = (int *)malloc(tamanho * sizeof(int));
+    Metricas metricas = {0, 0, 0.0, 0};
+    int* arr = (int*)malloc(tamanho * sizeof(int));
     if (arr == NULL) {
         printf("Erro ao alocar memória.\n");
         return 1;
     }
-    arr = carregarVetor(tamanho,caso,&vetorsize);
 
-    Metricas metricas = {0, 0, 0.0, 0};
+    loadArray(arr, tamanho, caso);
 
-
-    // printf("Array inicial: \n");
-    // printArray(arr, N);
-
-    // Capturar o tempo de início
     clock_t inicio = clock();
     mergeSort(arr, 0, tamanho - 1, &metricas);
-    // Capturar o tempo de termino
     clock_t fim = clock();
+    metricas.tempoExecucao = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
 
-    // Calcular o tempo de execucao em segundos
-    metricas.tempoExecucao = ((double) (fim - inicio)) / CLOCKS_PER_SEC;
-
-    // printf("\nArray ordenado: \n");
-    // printArray(arr, N);
     printf("Comparacoes: %d\n", metricas.comparacoes);
     printf("Trocas: %d\n", metricas.trocas);
-    printf("Tempo de execucao: %f\n", metricas.tempoExecucao);
-    printf("Memoria usada: %zu\n", (unsigned long)metricas.memoriaUsada);
+    printf("Tempo de execucao: %lf\n", metricas.tempoExecucao);
+    printf("Memoria usada: %d\n", metricas.memoriaUsada);
 
-
-    // Liberar a memoria alocada para o vetor
     free(arr);
-
     return 0;
 }

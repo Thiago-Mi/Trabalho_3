@@ -194,7 +194,21 @@ def run_js_comparison(algorithms_js, sizes, options):
                 metrics_list.append(metrics)
             metrics_dict[algorithm_name][option] = metrics_list
     plot_metrics(metrics_dict)
-                
+       
+def run_c_comparison(algorithms_c, sizes, options):
+    metrics_dict = {}
+    for algorithm_name, executable in algorithms_c.items():
+        metrics_dict[algorithm_name] = {}
+        for option in options:
+            metrics_list = []
+            for size in sizes:
+                print(f"Running {algorithm_name}, with size: {size}")
+                result = subprocess.run([executable, str(size), str(option)], capture_output=True, text=True)
+                output = result.stdout
+                metrics = parse_metrics(output)
+                metrics_list.append(metrics)
+            metrics_dict[algorithm_name][option] = metrics_list
+    plot_metrics(metrics_dict)
         
 
 # Função principal
@@ -243,11 +257,12 @@ if __name__ == "__main__":
         "Bubble Sort": "Interpretadas/Javascript/bubble_sort.js",
     }
 
-    # sizes = [1000, 10000, 100000, 200000, 400000, 800000, 1000000]  # Diferentes tamanhos de entrada para teste
-    sizes = [1000,10000,100000,200000]
+    sizes = [1000, 10000, 100000, 200000, 400000, 800000, 1000000]  # Diferentes tamanhos de entrada para teste
+    # sizes = [1000,10000,100000,200000]
     # sizes = [1000,10000]
     options = ["aleatorios","crescente", "decrescente"]
 
+    run_c_comparison(algorithms_c,sizes,options)
     run_js_comparison(algorithms_js,sizes,options)
     run_cpp_comparison(algorithms_cpp,sizes,options)
     run_python_comparison(algorithms_py)

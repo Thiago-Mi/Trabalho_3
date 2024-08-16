@@ -31,110 +31,84 @@ Abaixo está a análise de complexidade de tempo Big O para cada algoritmo de or
 
 2. **Counting Sort**
    - **Complexidade de Tempo (Melhor caso, Médio, Pior caso)**: O(n + k), onde k é o valor máximo no array
-   - **Complexidade de Espaço**: O(k)
+   - **Complexidade de Espaço**: O(n + k)
    - **Descrição**: Counting Sort é um algoritmo de ordenação não-comparativa que conta a ocorrência de cada elemento e usa essa contagem para determinar a posição de cada elemento na lista ordenada.
 
 3. **Radix Sort**
    - **Complexidade de Tempo (Melhor caso, Médio, Pior caso)**: O(d*(n + k)), onde d é o número de dígitos e k é o valor máximo possível dos dígitos
    - **Complexidade de Espaço**: O(n + k)
-   - **Descrição**: Radix Sort ordena os números processando cada dígito de forma individual, geralmente utilizando Counting Sort como sub-rotina.
+   - **Descrição**: Radix Sort ordena os números processando cada dígito de forma individual, utilizando um algoritmo de ordenação estável como o Counting Sort para cada posição do dígito.
 
 4. **Heap Sort**
    - **Complexidade de Tempo (Melhor caso, Médio, Pior caso)**: O(n log n)
    - **Complexidade de Espaço**: O(1)
-   - **Descrição**: Heap Sort é um algoritmo de ordenação baseado em uma estrutura de dados chamada heap binário. Ele converte a lista em um heap e então extrai o maior elemento repetidamente para formar a lista ordenada.
+   - **Descrição**: Heap Sort converte a lista em uma estrutura de dados conhecida como heap, onde o maior (ou menor) elemento é sempre o nó raiz. Ele então remove o nó raiz e o coloca na posição final, repetindo o processo até que a lista esteja ordenada.
 
 5. **Shell Sort**
-   - **Complexidade de Tempo**
-     - **Melhor caso**: O(n log n) (depende da sequência de gap usada)
-     - **Médio**: entre O(n log² n) e O(n^(3/2))
-     - **Pior caso**: O(n²)
+   - **Complexidade de Tempo**: O(n log n) em muitos casos, variando dependendo da escolha dos gaps
    - **Complexidade de Espaço**: O(1)
-   - **Descrição**: Shell Sort é uma generalização do Insertion Sort que permite a troca de elementos que estão longe um do outro, melhorando a eficiência comparada ao Insertion Sort.
+   - **Descrição**: Shell Sort é uma versão otimizada do Insertion Sort que compara elementos distantes ao invés de adjacentes, o que reduz drasticamente o número de comparações necessárias.
 
 6. **Quick Sort**
-   - **Complexidade de Tempo**
-     - **Melhor caso**: O(n log n)
-     - **Médio**: O(n log n)
-     - **Pior caso**: O(n²) (ocorre quando o pivô escolhido é o menor ou maior elemento)
-   - **Complexidade de Espaço**: O(log n)
-   - **Descrição**: Quick Sort é um algoritmo de ordenação por divisão e conquista que escolhe um pivô e particiona a lista em elementos menores e maiores que o pivô, ordenando-os recursivamente.
+   - **Complexidade de Tempo**: O(n log n) no melhor e médio caso, O(n^2) no pior caso
+   - **Complexidade de Espaço**: O(log n) (devido à pilha de recursão)
+   - **Descrição**: Quick Sort é um algoritmo de ordenação por divisão e conquista que seleciona um elemento como pivô e particiona a lista em duas sublistas, uma com elementos menores e outra com elementos maiores que o pivô. O processo é repetido recursivamente.
 
 7. **Selection Sort**
-   - **Complexidade de Tempo (Melhor caso, Médio, Pior caso)**: O(n²)
+   - **Complexidade de Tempo (Melhor caso, Médio, Pior caso)**: O(n^2)
    - **Complexidade de Espaço**: O(1)
-   - **Descrição**: Selection Sort é um algoritmo de ordenação simples que seleciona repetidamente o menor (ou maior) elemento de uma lista não ordenada e o coloca na posição correta.
+   - **Descrição**: Selection Sort é um algoritmo simples que percorre a lista repetidamente, selecionando o menor (ou maior) elemento e movendo-o para a posição correta.
 
 8. **Bubble Sort**
-   - **Complexidade de Tempo**
-     - **Melhor caso**: O(n) (ocorre quando a lista já está ordenada)
-     - **Médio**: O(n²)
-     - **Pior caso**: O(n²)
+   - **Complexidade de Tempo**: O(n^2) no pior e médio caso, O(n) no melhor caso
    - **Complexidade de Espaço**: O(1)
-   - **Descrição**: Bubble Sort é um algoritmo simples de ordenação que repetidamente percorre a lista, trocando elementos adjacentes que estão na ordem errada.
+   - **Descrição**: Bubble Sort é um algoritmo de ordenação simples onde cada elemento é comparado com o próximo, trocando-os se estiverem fora de ordem. Este processo é repetido até que a lista esteja ordenada.
 
-## Objetivo
+## Discussões
 
-O objetivo deste estudo é entender como a natureza das linguagens de programação compiladas versus interpretadas afeta o desempenho dos algoritmos de ordenação. Embora a complexidade de tempo Big O ofereça uma visão teórica sobre o comportamento dos algoritmos, o desempenho real pode variar significativamente entre as diferentes linguagens devido a fatores como:
+### Arquivo de Input
 
-- **Eficiência do compilador ou interpretador**
-- **Gestão de memória**
-- **Optimizações internas**
-- **Overhead de interpretação**
+Todos os testes foram executados com os mesmos vetores de entrada aleatorios, garantindo que não haja disparidade no desempenho de cada algoritmo. Foi gerado 3 arquivos input com configurações diferentes de vetores, o que foi usado possui vetores de 100 a 150000 variando de 100 em 100 até chegar em 150000 em trios de aleatorios, crescente e decrescente para cada tamanho
 
-## Metodologia
+### Impacto da Interpretação e Overhead
 
-### Complexidade de Tempo Big O
+As linguagens interpretadas, como Python e JavaScript, sofrem de um overhead significativo devido à interpretação e à gestão de memória, o que impacta diretamente o tempo de execução dos algoritmos. No caso do Python, o Global Interpreter Lock (GIL) é um fator crítico, pois impede a execução simultânea de múltiplas threads em programas CPU-bound, limitando o potencial de paralelismo em operações que poderiam se beneficiar disso, como o Quick Sort.
 
-Cada algoritmo foi analisado teoricamente para determinar sua complexidade de tempo Big O, que serve como base para prever o desempenho em grandes volumes de dados.
+### Comportamento dos Algoritmos de Ordenação
 
-### Desempenho Real
+Os algoritmos com complexidade O(n log n), como Merge Sort e Quick Sort, apresentaram desempenho consistentemente melhor nas linguagens compiladas, enquanto os algoritmos O(n^2), como Selection Sort e Bubble Sort, mostraram diferenças mais pronunciadas entre as linguagens devido ao impacto do overhead.
 
-Os algoritmos foram implementados em C, C++, Python e JavaScript. Em seguida, rodamos testes de benchmark utilizando diferentes tamanhos de entrada, (100, 1000, 10000, 100000) para medir o tempo de execução de cada algoritmo em cada linguagem. Estes testes foram executados em condições controladas para garantir a consistência dos resultados.
+### Observações Específicas sobre JavaScript
 
-### Ferramentas Utilizadas
-
-- **C/C++**: Compilador GCC.
-- **Python**: Python 3.12.x.
-- **JavaScript**: Node.js.
-
-### Métricas Coletadas
-
-- **Tempo de Execução**: Medido em milissegundos.
-- **Trocas de valor entre variáveis** Avaliado sempre que possível.
-- **Comparações entre variáveis** Avaliado sempre que possível.
-- **Diferenças Semânticas e Sintáticas**: Observações sobre como as características das linguagens afetam a implementação dos algoritmos.
-
-## Resultados e Discussão
-
-Os resultados são apresentados em gráficos que mostram o tempo de execução de cada algoritmo nas diferentes linguagens para diferentes tamanhos de entrada. Discussões subsequentes abordam as seguintes questões:
-
-- Como a natureza compilada de C e C++ proporciona vantagens em termos de velocidade de execução?
-- De que maneira as linguagens interpretadas, como Python e JavaScript, apresentam sobrecargas que afetam o desempenho?
-- Há diferenças significativas no desempenho de algoritmos que dependem fortemente de operações de comparação versus aqueles que dependem de operações aritméticas?
-- Como a gestão de memória e otimizações internas das linguagens influenciam o desempenho dos algoritmos?
-
-- Este estudo revela que, embora a complexidade Big O seja um indicador importante, o desempenho real dos algoritmos de ordenação varia consideravelmente entre as linguagens de programação. As linguagens compiladas (C e C++) tendem a ser bem mais rápidas, especialmente para grandes volumes de dados, enquanto as linguagens interpretadas (Python e JavaScript) sofrem com maior overhead, embora ofereçam maior flexibilidade e facilidade de uso. O python por exemplo sofre com o limite de tarefas em recurção que é baixo, por padrão são 1000, esse fato gera a necessidade de aplicar melhoria nos algoritmos para diminuir o volume recursivo, como no caso do quick_sort, em seu pior caso, a escolha de um pivo ruim estoura facilmente o limite de tarefas recursivas no python, o que não acontece no javascript e nem nas linguagens compiladas, considerando o volume de dados utilizado.
+Uma discrepância interessante foi observada no tempo de execução do Bubble Sort em JavaScript. Esta discrepância pode ser atribuída a otimizações específicas do motor de JavaScript, como o V8, que possui otimizações de JIT (Just-In-Time compilation) e outras técnicas avançadas que melhoram o desempenho, especialmente em algoritmos simples e operações com arrays menores. Investigações mais detalhadas poderiam explorar se houve alguma outra variável externa, como a carga de trabalho da máquina durante os testes, que também poderia ter influenciado os resultados.
 
 ## Conclusão
 
-- Linguagens compiladas como C e C++ oferecem desempenho superior para algoritmos de ordenação devido à sua execução direta no hardware, permitindo otimizações de baixo nível e controle eficiente da memória. Isso resulta em tempos de execução significativamente mais rápidos e previsíveis em comparação com linguagens interpretadas. Além disso, C e C++ têm melhor suporte para paralelismo e multi-threading, o que é crucial para manipular grandes volumes de dados de maneira eficaz, linguagens interpretadas como Python e JavaScript sofrem com overhead adicional causado pela interpretação em tempo de execução e pela coleta de lixo, o que pode levar a tempos de execução menos consistentes e mais lentos. Além disso, essas linguagens oferecem menos controle sobre a memória e são menos eficientes em operações de baixo nível, tornando-as menos ideais para tarefas críticas de desempenho, como a ordenação de grandes conjuntos de dados. Por outro lado, a implementação desses algoritmos nas linguagens interpretadas é muito mais direta e facilitada pela natureza mais simplificada das linguagens.
+As linguagens compiladas, como C e C++, mostraram-se superiores em termos de desempenho, especialmente para algoritmos com complexidade O(n log n) e O(n^2). Além disso, as linguagens compiladas se beneficiam de otimizações específicas do compilador e suporte nativo a paralelismo e multi-threading, o que não foi explorado neste estudo, mas poderia ter um impacto ainda maior em certos algoritmos.
+
+Por outro lado, as linguagens interpretadas, como Python e JavaScript, apresentaram maiores tempos de execução devido ao overhead da interpretação e à gestão de memória. No entanto, vale destacar que essas linguagens oferecem uma maior facilidade de desenvolvimento e implementação de algoritmos, tornando-as ideais para prototipagem, scripts rápidos, e desenvolvimento ágil em contextos onde o desempenho absoluto não é o fator mais crítico.
+
 
 ## Instruções de Execução
+
+Todos os arquivos em python foram projetados para serem executados em suas respectivas pastas de origem.
+Caso tenha problemas para executar os algoritmos entre no arquivo comparações.py e modifique o caminho presente nos dicionários algorithms_(x) onde o x 
+é o tipo de arquivo como py ou cpp.
+Modifique o caminho do arquivo txt de vetores a ser carregado em cada algoritmo de ordenação em todas as linguagens por meio de um DEFINE.
 
 Para reproduzir os benchmarks, siga as instruções abaixo para cada linguagem:
 
 ### C/C++
-
-1. Compile o código utilizando `gcc`.
-2. Execute o binário gerado.
-
-### Python
-
-1. Certifique-se de ter Python 3.12.x instalado.
-2. Execute o script com `python`.
+1. Compile cada código da pasta utilizando `gcc`.
 
 ### JavaScript
 
 1. Instale o Node.js.
-2. Execute o script com `node`.
+
+### Python
+
+1. Modifique também o caminho  que será usado para ser salvo os graficos gerados.
+2. Certifique-se de ter Python 3.12.x instalado.
+3. Execute o script  comparacoes.py com `python`.
+
+

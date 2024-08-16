@@ -5,51 +5,53 @@ import os.path
 import execjs
 import numpy as np
 
+CAMINHO_VETOR = 'D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_3.txt'
+CAMINHO_GRAFICOS = 'D:/Documentos/cefet/AEDS/Trabalho_3/Graficos'
 # Função para rodar um algoritmo de ordenação Python
 def run_sort_algorithm_js(module_name, size, option):
-    result = subprocess.run(["node", module_name, str(size), str(option)], capture_output=True, text=True)
+    result = subprocess.run(["node", module_name, str(size), str(option), CAMINHO_VETOR], capture_output=True, text=True)
     metrics = result.stdout
     return metrics
 
 # Função para rodar o algoritmo Merge Sort
 def run_merge_sort_py(size, option):
     import merge_sort
-    return merge_sort.main(size, option)
+    return merge_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Selection Sort
 def run_selection_sort_py(size, option ):
     import selection_sort
-    return selection_sort.main(size, option )
+    return selection_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Counting Sort
 def run_counting_sort_py(size, option ):
     import counting_sort
-    return counting_sort.main(size, option )
+    return counting_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Quick Sort
 def run_quick_sort_py(size, option ):
     import quick_sort
-    return quick_sort.main(size, option )
+    return quick_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Heap Sort
 def run_heap_sort_py(size, option ):
     import heap_sort
-    return heap_sort.main(size, option )
+    return heap_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Shell Sort
 def run_shell_sort_py(size, option ):
     import shell_sort
-    return shell_sort.main(size, option )
+    return shell_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Bubble Sort
 def run_bubble_sort_py(size, option ):
     import bubble_sort
-    return bubble_sort.main(size, option)
+    return bubble_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para rodar o algoritmo Radix Sort
 def run_radix_sort_py(size, option):
     import radix_sort
-    return radix_sort.main(size,option)
+    return radix_sort.main(size,option, CAMINHO_VETOR)
 
 # Função para parsear as métricas a partir da saída do script
 def parse_metrics(output):
@@ -69,59 +71,102 @@ def parse_metrics(output):
 
 # Função para plotar as métricas
 
-def plot_metrics(metrics_dict):
-    metrics = ["Comparacoes", "Trocas", "Tempo de execucao"]
-    vector_types = ['aleatorios', 'crescente', 'decrescente']  # Tipos de vetores
-    colors = sns.color_palette("Set2", len(vector_types))  # Paleta de cores
+    # discutir o grafico de linha em cada linguagem diferente o coiso
+
+def plot_metrics(metrics_dict, linguagem, sizes):
+    vector_types = ['aleatorios', 'crescente', 'decrescente']
+    algorithms = list(metrics_dict.keys())
+    sizes_to_plot = [100, 500, 1000, 1500, 10000]
+    metrics_names = ['Comparacoes', 'Trocas', 'Tempo de execucao']
     
-    plt.figure(figsize=(20, 10))
+    if not os.path.exists(CAMINHO_GRAFICOS+"_metricas"):
+        os.makedirs(CAMINHO_GRAFICOS)
     
-    for i, metric_name in enumerate(metrics):
-        plt.subplot(1, len(metrics), i + 1)
-        
-        algorithms = []
-        aleatorios_values = []
-        crescente_values = []
-        decrescente_values = []
-        
-        for algorithm_name, options_metrics in metrics_dict.items():
-            algorithms.append(algorithm_name)
+    for metric in metrics_names:
+        for size in sizes_to_plot:
+            plt.figure(figsize=(15, 10))
+            plt.suptitle(f'Métrica: {metric.capitalize()} para Tamanho de Vetor {size} - {linguagem}', fontsize=16)
             
-            # Somar os valores de cada tipo de vetor para a métrica atual
-            aleatorio_sum = sum([metrics[metric_name] for metrics in options_metrics['aleatorios']])
-            crescente_sum = sum([metrics[metric_name] for metrics in options_metrics['crescente']])
-            decrescente_sum = sum([metrics[metric_name] for metrics in options_metrics['decrescente']])
+            # Dados para plotagem
+            data = []
+            for vector_type in vector_types:
+                for algorithm_name in algorithms:
+                    valor = metrics_dict[algorithm_name][vector_type][sizes_to_plot.index(size)][metric.capitalize()]
+                    data.append((algorithm_name, vector_type, valor))
             
-            aleatorios_values.append(aleatorio_sum)
-            crescente_values.append(crescente_sum)
-            decrescente_values.append(decrescente_sum)
+            # Converter para numpy array para facilitar o plot
+            data_np = np.array(data, dtype=object)
+            algorithm_names = data_np[:, 0]
+            vector_labels = data_np[:, 1]
+            values = data_np[:, 2].astype(float)
+            
+            # Ordena os algoritmos pela métrica
+            sorted_indices = np.argsort(algorithm_names)
+            algorithm_names = algorithm_names[sorted_indices]
+            vector_labels = vector_labels[sorted_indices]
+            values = values[sorted_indices]
+            
+            # Cria o gráfico de barras
+            for vector_type in vector_types:
+                indices = np.where(vector_labels == vector_type)[0]
+                plt.bar(algorithm_names[indices], values[indices], label=vector_type.capitalize())
+            
+            plt.xlabel('Algoritmo de Ordenação')
+            plt.ylabel(metric.capitalize())
+            plt.title(f'{metric.capitalize()} para Vetores de Tamanho {size}')
+            plt.xticks(rotation=45)
+            plt.legend(title="Tipo de Vetor")
+            plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+            
+            # Salvar o gráfico
+            # output_file = os.path.join(CAMINHO_GRAFICOS+"_metricas", f'{metric.capitalize()}_para_Vetores_de_Tamanho_{size}')
+            # plt.savefig(output_file)
         
-        # Converter os valores para numpy arrays para facilitar a manipulação
-        aleatorios_values = np.array(aleatorios_values)
-        crescente_values = np.array(crescente_values)
-        decrescente_values = np.array(decrescente_values)
+        # Fechar a figura para liberar memória
+        plt.close()
+
+def plot_asymptotic_behavior(metrics_dict, linguagem, sizes):
+    vector_types = ['aleatorios', 'crescente', 'decrescente']
+    algorithms = list(metrics_dict.keys())
+
+    # Criar o diretório de saída se ele não existir
+    if not os.path.exists(CAMINHO_GRAFICOS):
+        os.makedirs(CAMINHO_GRAFICOS)
+    
+    for algorithm_name in algorithms:
+        plt.figure(figsize=(10, 6))
+        plt.title(f'Curva de Tempo de Execução do Algoritmo {algorithm_name} ({linguagem})', fontsize=16)
         
-        # Plotar barras empilhadas
-        p1 = plt.bar(algorithms, aleatorios_values, color=colors[0], label=vector_types[0])
-        p2 = plt.bar(algorithms, crescente_values, bottom=aleatorios_values, color=colors[1], label=vector_types[1])
-        p3 = plt.bar(algorithms, decrescente_values, bottom=aleatorios_values + crescente_values, color=colors[2], label=vector_types[2])
+        for vector_type in vector_types:
+            times = []
+            for size in sizes:
+                tempo_execucao = metrics_dict[algorithm_name][vector_type][sizes.index(size)]['Tempo de execucao']
+                
+                # Tratamento dos dados para tempos pequenos ou inexistentes
+                if tempo_execucao is None or tempo_execucao < 1e-6:
+                    tempo_execucao = 0.0
+                
+                times.append(tempo_execucao)
+            
+            # Plotando a curva de tempo de execução
+            plt.plot(sizes, times, marker='o', label=vector_type.capitalize())
         
-        plt.xlabel('Método de Ordenação')
-        plt.ylabel(metric_name)
-        plt.title(f'{metric_name} por Algoritmo')
-        plt.xticks(rotation=45, ha='right')
+        plt.xlabel('Tamanho do Vetor')
+        plt.ylabel('Tempo de Execução (s)')
+        plt.yscale('log')
+        plt.grid(True, linestyle='--', alpha=0.7)
         plt.legend(title="Tipo de Vetor")
-        plt.grid(True)
-    
-    plt.tight_layout()
-    plt.show()
-
-
-
+        plt.tight_layout()
+        plt.show()
+        # Salvar o gráfico
+        # output_file = os.path.join(CAMINHO_GRAFICOS, f'{algorithm_name}_{linguagem}.png')
+        # plt.savefig(output_file)
+        
+        # Fechar a figura para liberar memória
+        plt.close()
 
 def exec_pythons_algorithms(algorithm_name, size, option):
     metrics = {}
-    print(f"Running {algorithm_name}, with size: {size}")
     if algorithm_name == "Bubble Sort":
         metrics = run_bubble_sort_py(size, option )
     elif algorithm_name == "Selection Sort":
@@ -129,7 +174,6 @@ def exec_pythons_algorithms(algorithm_name, size, option):
     elif algorithm_name == "Counting Sort":
         metrics = run_counting_sort_py(size, option )
     elif algorithm_name == "Merge Sort":
-        print(size, option)
         metrics = run_merge_sort_py(size,option)
     elif algorithm_name == "Quick Sort":
         metrics = run_quick_sort_py(size, option )
@@ -141,7 +185,7 @@ def exec_pythons_algorithms(algorithm_name, size, option):
         metrics = run_radix_sort_py(size, option )
     return metrics
 
-def run_python_comparison(algorithms_py):
+def run_python_comparison(algorithms_py, sizes, options):
     metrics_dict = {}
     for algorithm_name, executable in algorithms_py.items():
         metrics_dict[algorithm_name] = {}
@@ -151,7 +195,8 @@ def run_python_comparison(algorithms_py):
                 print(f"Running {algorithm_name}, with size: {size}")
                 metrics_list.append(exec_pythons_algorithms(algorithm_name, size, option))
             metrics_dict[algorithm_name][option] = metrics_list
-    plot_metrics(metrics_dict)
+    # plot_metrics(metrics_dict, "Python", sizes)
+    plot_asymptotic_behavior(metrics_dict, "Python", sizes)
     
 def run_cpp_comparison(algorithms_cpp, sizes, options):
     metrics_dict = {}
@@ -161,12 +206,13 @@ def run_cpp_comparison(algorithms_cpp, sizes, options):
             metrics_list = []
             for size in sizes:
                 print(f"Running {algorithm_name}, with size: {size}")
-                result = subprocess.run([executable, str(size), str(option)], capture_output=True, text=True)
+                result = subprocess.run([executable, str(size), str(option), str(CAMINHO_VETOR)], capture_output=True, text=True)
                 output = result.stdout
                 metrics = parse_metrics(output)
                 metrics_list.append(metrics)
             metrics_dict[algorithm_name][option] = metrics_list
-    plot_metrics(metrics_dict)
+    # plot_metrics(metrics_dict, "C++", sizes)
+    plot_asymptotic_behavior(metrics_dict, "C++", sizes)
     
 def run_c_comparison(algorithms_c, sizes, options):
     metrics_dict = {}
@@ -176,12 +222,13 @@ def run_c_comparison(algorithms_c, sizes, options):
             metrics_list = []
             for size in sizes:
                 print(f"Running {algorithm_name}, with size: {size}")
-                result = subprocess.run([executable, str(size), str(option)], capture_output=True, text=True)
+                result = subprocess.run([executable, str(size), str(option), str(CAMINHO_VETOR)], capture_output=True, text=True)
                 output = result.stdout
                 metrics = parse_metrics(output)
                 metrics_list.append(metrics)
             metrics_dict[algorithm_name][option] = metrics_list
-    plot_metrics(metrics_dict)
+    # plot_metrics(metrics_dict, "C", sizes)
+    plot_asymptotic_behavior(metrics_dict, "C", sizes)
 
 def run_js_comparison(algorithms_js, sizes, options):
     metrics_dict = {}
@@ -191,34 +238,14 @@ def run_js_comparison(algorithms_js, sizes, options):
         for option in options:
             metrics_list = []
             for size in sizes:
-                # print(f"Running {algorithm_name}, with size: {size}")
-                # dir = os.path.dirname(executable)
-                # with open(os.path.join(dir, "merge_sort.js")) as f:
-                #     jscode = f.read()
-                # result = myjs.compile(jscode)
-                # output = result.call("main",size,option)
+                print(f"Running {algorithm_name}, with size: {size}")
                 metrics = run_sort_algorithm_js(executable,size,option)
                 metrics = parse_metrics(metrics)
                 metrics_list.append(metrics)
             metrics_dict[algorithm_name][option] = metrics_list
-    
-    plot_metrics(metrics_dict)
+    # plot_metrics(metrics_dict, "Js", sizes)
+    plot_asymptotic_behavior(metrics_dict, "Js", sizes)
        
-def run_c_comparison(algorithms_c, sizes, options):
-    metrics_dict = {}
-    for algorithm_name, executable in algorithms_c.items():
-        metrics_dict[algorithm_name] = {}
-        for option in options:
-            metrics_list = []
-            for size in sizes:
-                # print(f"Running {algorithm_name}, with size: {size}")
-                result = subprocess.run([executable, str(size), str(option)], capture_output=True, text=True)
-                output = result.stdout
-                metrics = parse_metrics(output)
-                metrics_list.append(metrics)
-            metrics_dict[algorithm_name][option] = metrics_list
-    print(metrics_dict)
-    plot_metrics(metrics_dict)
         
 
 # Função principal
@@ -267,12 +294,12 @@ if __name__ == "__main__":
         "Bubble Sort": "Interpretadas/Javascript/bubble_sort.js",
     }
 
-    sizes = [100, 1000, 10000, 100000]  # Diferentes tamanhos de entrada para teste
-    # sizes = [1000,10000,100000,200000]
-    # sizes = [1000,10000]
+
+    sizes = range(100, 10000,100)
+
     options = ["aleatorios","crescente", "decrescente"]
 
-    run_cpp_comparison(algorithms_cpp,sizes,options)
-    run_python_comparison(algorithms_py)
-    run_c_comparison(algorithms_c,sizes,options)
+    run_python_comparison(algorithms_py, sizes, options)
     run_js_comparison(algorithms_js,sizes,options)
+    run_cpp_comparison(algorithms_cpp,sizes,options)
+    run_c_comparison(algorithms_c,sizes,options)

@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <fstream>
+ 
 
 struct Metricas {
     int comparacoes = 0;
@@ -49,8 +50,8 @@ void heapSort(std::vector<int>& arr, Metricas& metricas) {
 
 }
 
-std::vector<int> loadArray(int size, const std::string& caseType) {
-    std::ifstream file("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt");
+std::vector<int> loadArray(int size, const std::string& caseType, std::string caminhoVetor) {
+    std::ifstream file(caminhoVetor);
     std::vector<int> arr(size);
     std::string key = std::to_string(size) + " " + caseType + ":";
     std::string line;
@@ -66,16 +67,17 @@ std::vector<int> loadArray(int size, const std::string& caseType) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Uso: ./merge_sort <tamanho do vetor> <caso>\n";
+    if (argc != 4) {
+        std::cerr << "Uso: ./heap_sort <tamanho do vetor> <caso>\n";
         return 1;
     }
 
     int tamanho = std::stoi(argv[1]);
     std::string caso = argv[2];
+    std::string caminhoVetor = argv[3];
 
     Metricas metricas;
-    std::vector<int> arr = loadArray(tamanho, caso);
+    std::vector<int> arr = loadArray(tamanho, caso, caminhoVetor);
 
     auto start = std::chrono::high_resolution_clock::now();
     heapSort(arr, metricas);

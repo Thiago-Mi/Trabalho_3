@@ -22,8 +22,8 @@ def bubbleSort(arr, metricas):
                 arr[j], arr[j+1] = arr[j+1], arr[j]
                 metricas.trocas += 1
 
-def carregarVetor(tamanho, caso):
-    with open('vetores/vetores_input_2.txt', 'r') as f:
+def carregarVetor(tamanho, caso, caminhoVetor):
+    with open(caminhoVetor, 'r') as f:
         lines = f.readlines()
         key = f"{tamanho} {caso}:"
         for i in range(len(lines)):
@@ -33,11 +33,11 @@ def carregarVetor(tamanho, caso):
     return []
 
 # Função principal
-def main(tamanho, caso):
+def main(tamanho, caso, caminhoVetor):
     locale.setlocale(locale.LC_ALL, "Portuguese")
 
     metricas = Metricas()
-    arr = carregarVetor(tamanho, caso)
+    arr = carregarVetor(tamanho, caso, caminhoVetor)
     inicio = time.time()
     bubbleSort(arr, metricas)
     fim = time.time()

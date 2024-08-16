@@ -3,6 +3,8 @@
 #include <time.h>
 #include <string.h>
 
+
+
 typedef struct {
     int comparacoes;
     long trocas;
@@ -55,8 +57,8 @@ void quickSort(int arr[], int low, int high, Metricas* metricas) {
     }
 }
 
-void loadArray(int arr[], int size, const char* caseType) {
-    FILE* file = fopen("D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt", "r");
+void loadArray(int arr[], int size, const char* caseType, const char* caminhoVetor) {
+    FILE* file = fopen(caminhoVetor, "r");
     if (file == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
@@ -77,12 +79,13 @@ void loadArray(int arr[], int size, const char* caseType) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        printf("Uso: ./quick_sort <tamanho do vetor> <caso>\n");
+    if (argc != 4) {
+        printf("Uso: ./quick_sort <tamanho do vetor> <caso> <caminho do arquivo>\n");
         return 1;
     }
     int tamanho = atoi(argv[1]);
     char* caso = argv[2];
+    char* caminhoVetor = argv[3];
 
     Metricas metricas = {0, 0, 0.0, 0};
     int* arr = (int*)malloc(tamanho * sizeof(int));
@@ -91,7 +94,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    loadArray(arr, tamanho, caso);
+    loadArray(arr, tamanho, caso, caminhoVetor);
 
     clock_t inicio = clock();
     quickSort(arr, 0, tamanho - 1, &metricas);

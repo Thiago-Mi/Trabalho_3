@@ -47,8 +47,8 @@ def quickSort(arr, low, high, metricas):
         quickSort(arr, pi + 1, high, metricas)
 
 
-def carregarVetor(tamanho, caso):
-    with open('vetores/vetores_input_2.txt', 'r') as f:
+def carregarVetor(tamanho, caso, caminhoVetor):
+    with open(caminhoVetor, 'r') as f:
         lines = f.readlines()
         key = f"{tamanho} {caso}:"
         for i in range(len(lines)):
@@ -58,11 +58,11 @@ def carregarVetor(tamanho, caso):
     return []
 
 # Função principal
-def main(tamanho, caso):
+def main(tamanho, caso, caminhoVetor):
     locale.setlocale(locale.LC_ALL, "Portuguese")
 
     metricas = Metricas()
-    arr = carregarVetor(tamanho, caso)
+    arr = carregarVetor(tamanho, caso, caminhoVetor)
     
     inicio = time.time()
     quickSort(arr,0,tamanho-1, metricas)

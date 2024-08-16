@@ -36,8 +36,8 @@ def countingSort(arr, metricas):
         arr[i] = output[i]
 
 
-def carregarVetor(tamanho, caso):
-    with open('vetores/vetores_input_2.txt', 'r') as f:
+def carregarVetor(tamanho, caso, caminhoVetor):
+    with open(caminhoVetor, 'r') as f:
         lines = f.readlines()
         key = f"{tamanho} {caso}:"
         for i in range(len(lines)):
@@ -46,27 +46,11 @@ def carregarVetor(tamanho, caso):
                 return vetor
     return []
 
-# Função principal
-def main(tamanho, caso):
+def main(tamanho, caso, caminhoVetor):
     locale.setlocale(locale.LC_ALL, "Portuguese")
 
-    # N = 100000  # Tamanho do vetor
-    # opcao = 0  # 0 para aleatório, 1 para crescente, 2 para decrescente
-    # repeticao = 1  # 0 para sem repetição, 1 para com repetição
-
-    # # Testando Counting Sort
-    # metricas = Metricas()
-    # arr_counting = (N, opcao, repeticao)
-    # inicio = time.time()
-    # countingSort(arr_counting, metricas)
-    # fim = time.time()
-    # metricas.tempoExecucao = fim - inicio
-
-
-    
-
     metricas = Metricas()
-    arr = carregarVetor(tamanho, caso)
+    arr = carregarVetor(tamanho, caso, caminhoVetor)
     
     inicio = time.time()
     countingSort(arr, metricas)

@@ -36,8 +36,8 @@ function countingSort(arr, metrics) {
     }
 }
 
-function carregarVetor(tamanho, caso) {
-    const data = fs.readFileSync('D:/Documentos/cefet/AEDS/Trabalho_3/vetores/vetores_input_2.txt', 'utf8');
+function carregarVetor(tamanho, caso, caminhoVetor) {
+    const data = fs.readFileSync(caminhoVetor, 'utf8');
     const lines = data.split('\n');
     const key = `${tamanho} ${caso}:`;
     for (let i = 0; i < lines.length; i++) {
@@ -48,9 +48,9 @@ function carregarVetor(tamanho, caso) {
     return [];
 }
 
-function main(tamanho, caso) {
+function main(tamanho, caso, caminhoVetor) {
     const metricas = new Metricas();
-    const arr = carregarVetor(tamanho, caso);
+    const arr = carregarVetor(tamanho, caso, caminhoVetor);
     
     const inicio = performance.now();
     countingSort(arr, metricas);
@@ -69,6 +69,7 @@ function main(tamanho, caso) {
 const args = process.argv.slice(2);
 const tamanho = parseInt(args[0]);
 const caso = args[1];
+const caminhoVetor = args[2];
 
-const resultado = main(tamanho, caso);
+const resultado = main(tamanho, caso, caminhoVetor);
 console.log(resultado);

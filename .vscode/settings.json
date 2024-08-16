@@ -44,6 +44,7 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "locale.h": "c"
+        "locale.h": "c",
+        "string.h": "c"
     }
 }

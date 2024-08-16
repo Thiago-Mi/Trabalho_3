@@ -76,8 +76,8 @@ def printArray(arr):
 
 
 # Função para carregar o vetor a partir do arquivo
-def carregarVetor(tamanho, caso):
-    with open('vetores/vetores_input_2.txt', 'r') as f:
+def carregarVetor(tamanho, caso, caminhoVetor):
+    with open(caminhoVetor, 'r') as f:
         lines = f.readlines()
         key = f"{tamanho} {caso}:"
 
@@ -88,16 +88,11 @@ def carregarVetor(tamanho, caso):
     return []
 
 # Função principal
-def main(tamanho, caso):
+def main(tamanho, caso, caminhoVetor):
     locale.setlocale(locale.LC_ALL, "Portuguese")
 
-    # tamanho = int(sys.argv[1])
-    # caso = sys.argv[2] 
-    # print("Uso: python merge_sort.py {tamanho} {caso}")
-    
-
     metricas = Metricas()
-    arr = carregarVetor(tamanho, caso)
+    arr = carregarVetor(tamanho, caso, caminhoVetor)
     inicio = time.time()
     mergeSort(arr, 0, tamanho -1, metricas)
     fim = time.time()
